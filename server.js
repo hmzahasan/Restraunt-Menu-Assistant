@@ -25,7 +25,7 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 // ES Module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -112,93 +112,95 @@ const prompt = ChatPromptTemplate.fromMessages([
 
 // Start Server
 
-try {
 
-    // Create Tool Calling Agent
-    const agent = await createToolCallingAgent({
 
-        llm: model,
-
-        tools: [getMenuTool],
-
-        prompt
-
-    });
-
-    // Create Agent Executor
-    const executor = new AgentExecutor({
-
-        agent,
-
-        tools: [getMenuTool],
-
-        verbose: true
-
-    });
-
-    // Home Route
-    app.get('/', (req, res) => {
-
-        res.sendFile(path.join(__dirname, 'puublic','index.html'));
-
-    });
-
-    // Chat API
-    
-app.post('/chat', async (req, res) => {
-try {
-    const { message } = req.body;
-
-    
-
-    if (!message || typeof message !== 'string') {
-        return res.status(400).json({
-            error: 'Please provide a valid message.'
-        });
-    }
-
-    const response = await executor.invoke({
-        input: message
-    });
-
-    console.log('Agent response:', response);
-
-    return res.status(200).json({
-        reply: response.output
-    });
-
-} catch (error) {
-    console.error('========== CHAT ERROR ==========');
-    console.error(error);
-    console.error(error.stack);
-    console.error('================================');
-
-    return res.status(500).json({
-        alert:('Unknown server error')
-    });
-}
-});
-
-// async function startServer() {
+async function startServer() {
 
    
+    try {
 
+        // Create Tool Calling Agent
+        const agent = await createToolCallingAgent({
+    
+            llm: model,
+    
+            tools: [getMenuTool],
+    
+            prompt
+    
+        });
+    
+        // Create Agent Executor
+        const executor = new AgentExecutor({
+    
+            agent,
+    
+            tools: [getMenuTool],
+    
+            verbose: true
+    
+        });
+    
+        // Home Route
+        app.get('/', (req, res) => {
+    
+            res.sendFile(path.join(__dirname, 'public','index.html'));
+    
+        });
+    
+        // Chat API
+        
+    app.post('/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+    
+        
+    
+        if (!message || typeof message !== 'string') {
+            return res.status(400).json({
+                error: 'Please provide a valid message.'
+            });
+        }
+    
+        const response = await executor.invoke({
+            input: message
+        });
+    
+        console.log('Agent response:', response);
+    
+        return res.status(200).json({
+            reply: response.output
+        });
+    
+    } catch (error) {
+        console.error('========== CHAT ERROR ==========');
+        console.error(error);
+        console.error(error.stack);
+        console.error('================================');
+    
+        return res.status(500).json({
+            alert:('Unknown server error')
+        });
+    }
+    });
 
-//         // Start Express Server
-//         app.listen(3000, () => {
+        // Start Express Server
+        app.listen(3000, () => {
 
-//             console.log('Server is running on http://localhost:3000');
+            console.log('Server is running on http://localhost:3000');
 
-//         });
-
-//   
-
-
-}
- catch (error) {
+        });
+    }
+        catch (error) {
 
             console.error('Server Initialization Error:', error);
     
         }
-export default app;
-// startServer();
+    }
+  
+
+
+
+ 
+// export default app;
+startServer();
